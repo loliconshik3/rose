@@ -27,6 +27,15 @@ class Video:
         self.preview = video_dict['preview']
         self.nmLink = video_dict['nmLink']
 
-    def play(self):
+    def play(self, watching_type=""):
         self.isWatched = True
-        os.system("mpv " + "https://youtube.com" + self.nmLink)
+        
+        mpv_command = "mpv "
+        link = " https://youtube.com" + self.nmLink
+
+        if watching_type == "Video only":
+            mpv_command += "--aid=0"
+        elif watching_type == "Audio only":
+            mpv_command += "--vid=0"
+
+        os.system(mpv_command + link)

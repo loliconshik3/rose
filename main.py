@@ -9,6 +9,10 @@ INDICATOR = "->"
 
 parser = Parser()
 
+def pick_watching_type():
+    option, index = pick(['Video and audio', 'Video only', 'Audio only'], 'Pick wathcing type: ', indicator=INDICATOR)
+    return option
+
 def show_videos(channel):
     title = f'{channel.name} videos: '
     options = channel.get_video_names()
@@ -29,7 +33,9 @@ def show_videos(channel):
 
     video = channel.videos[index-1]
     parser.add_video_in_history(video)
-    video.play()
+
+    watching_type = pick_watching_type()
+    video.play(watching_type)
 
     show_videos(channel)
 
