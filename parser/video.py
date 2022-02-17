@@ -1,12 +1,13 @@
-
+import os
 
 class Video:
 
-    def __init__(self, name="", link="", preview="", nmLink=""):
+    def __init__(self, name="", link="", preview="", nmLink="", isWatched=False):
         self.name = name
         self.link = link
         self.preview = preview
         self.nmLink = nmLink
+        self.isWatched = isWatched
 
     def toDict(self):
         video_dict = {
@@ -23,3 +24,7 @@ class Video:
         self.link = video_dict['link']
         self.preview = video_dict['preview']
         self.nmLink = video_dict['nmLink']
+
+    def play(self):
+        self.isWatched = True
+        os.system("mpv " + "https://youtube.com" + self.nmLink)

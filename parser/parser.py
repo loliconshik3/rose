@@ -4,6 +4,7 @@ from parser.channel import Channel
 from parser.mirror import Mirror
 from parser.video import Video
 from multiprocessing.pool import ThreadPool
+from os.path import exists
 import requests
 import json
 
@@ -15,7 +16,18 @@ class Parser:
         self.channels = []
         self.mirrors = []
 
+        self.HISTORY = []
+        if exists('history.txt'):
+            self.HISTORY = [i.strip('\n').split(',')[0] for i in open('history.txt')]
+
         self.database = Database()
+
+    def add_video_in_history(self, video):
+        self.HISTORY.append(video.nmLink)
+
+        with open('history.txt', 'a') as file:
+            file.write(video.nmLink + '\n')
+            file.close()
 
     def send_request(self, link):
         resp = requests.get(link)
@@ -65,7 +77,9 @@ class Parser:
             name = video_box.find_all("p")[1].text
             preview = video_box.find("img")['src']
 
-            video = Video(name, link, preview, nmLink)
+            isWatched = nmLink in self.HISTORY
+
+            video = Video(name, link, preview, nmLink, isWatched)
 
             channel.videos.append(video)
 
@@ -119,7 +133,7 @@ class Parser:
             vd = json.loads(chan[1].replace("'", '"').replace("\\", "\\\\"))
 
             channel = Channel()
-            channel.dictToChannel(ch, vd)
+            channel.dictToChannel(ch, vd, self.HISTORY)
             
             self.channels.append(channel)
             

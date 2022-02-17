@@ -12,6 +12,11 @@ parser = Parser()
 def show_videos(channel):
     title = f'{channel.name} videos: '
     options = channel.get_video_names()
+
+    for i in range(len(options)):
+        if channel.videos[i].isWatched:
+            options[i] = options[i] + ' [+]'
+
     options.insert(0, "..")
 
     option, index = pick(options, title, indicator=INDICATOR)
@@ -20,8 +25,8 @@ def show_videos(channel):
         show_channels()
 
     video = channel.videos[index-1]
-
-    os.system('mpv ' + 'https://youtube.com' + video.nmLink)
+    parser.add_video_in_history(video)
+    video.play()
 
     show_videos(channel)
 

@@ -24,7 +24,7 @@ class Channel:
 
         return channel_dict, str(videos_list)
 
-    def dictToChannel(self, channel_dict, videos_list):
+    def dictToChannel(self, channel_dict, videos_list, history):
         self.name = channel_dict['name']
         self.link = channel_dict['link']
 
@@ -32,4 +32,5 @@ class Channel:
         for video_dict in videos_list:
             video = Video()
             video.dictToVideo(video_dict)
+            video.isWatched = video.nmLink in history
             self.videos.append(video)
