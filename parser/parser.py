@@ -13,8 +13,10 @@ class Parser:
     def __init__(self):
         self.SUBS_LIST = [i.strip('\n').split(',')[0] for i in open('subscribes.txt')]
         self.MIRRORS = [i.strip('\n').split(',')[0] for i in open('mirrors')]
+        self.databaseChannels = []
         self.channels = []
         self.mirrors = []
+
 
         self.HISTORY = []
         if exists('history.txt'):
@@ -141,6 +143,7 @@ class Parser:
             self.load_channels()
             return False
         else:
+            self.databaseChannels = self.channels
             return True
 
     def get_channel_names(self):

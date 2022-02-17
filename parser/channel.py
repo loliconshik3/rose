@@ -34,3 +34,30 @@ class Channel:
             video.dictToVideo(video_dict)
             video.isWatched = video.nmLink in history
             self.videos.append(video)
+
+    def set_all_videos_old(self):
+        for video in self.videos:
+            video.isNew = False
+
+    def find_analog_in_list(self, channels_list):
+        for channel in channels_list:
+            if channel.link == self.link:
+                return channel
+
+    def has_new_videos(self, old_channel):
+        result = False
+        old_videos = []
+        
+        for video in old_channel.videos:
+            old_videos.append(video.nmLink)
+
+        for video in self.videos: 
+            if not video.nmLink in old_videos:
+                video.isNew = True
+                result = True
+
+        old_channel.videos = self.videos
+
+        return result
+
+

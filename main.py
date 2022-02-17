@@ -14,11 +14,14 @@ def show_videos(channel):
     options = channel.get_video_names()
 
     for i in range(len(options)):
+        if channel.videos[i].isNew:
+            options[i] = '[!] ' + options[i]
         if channel.videos[i].isWatched:
-            options[i] = options[i] + ' [+]'
+            options[i] = '[+] ' + options[i]
 
     options.insert(0, "..")
 
+    channel.set_all_videos_old()
     option, index = pick(options, title, indicator=INDICATOR)
 
     if index == 0 and option == "..":
@@ -33,6 +36,19 @@ def show_videos(channel):
 def show_channels():
     title = 'Your subscriptions: '
     options = parser.get_channel_names()
+
+    for i in range(len(options)):
+        chan = parser.channels[i]
+        analog = chan.find_analog_in_list(parser.databaseChannels)
+        
+        if analog == None:
+            continue
+
+        hasNewVideos = chan.has_new_videos(analog)
+
+        if hasNewVideos:
+            options[i] = '[!] ' + options[i]
+
     options.insert(0, "..")
 
     option, index = pick(options, title, indicator=INDICATOR)

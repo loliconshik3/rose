@@ -8,6 +8,8 @@ class Video:
         self.preview = preview
         self.nmLink = nmLink
         self.isWatched = isWatched
+        
+        self.isNew = False
 
     def toDict(self):
         video_dict = {
