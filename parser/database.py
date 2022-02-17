@@ -3,7 +3,7 @@ import sqlite3
 class Database:
 
     def __init__(self):
-        self.base = sqlite3.connect('channels.db')
+        self.base = sqlite3.connect('channels.db', check_same_thread=False)
         self.cursor = self.base.cursor()
 
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS channels (

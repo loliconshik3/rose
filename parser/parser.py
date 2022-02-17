@@ -3,6 +3,7 @@ from parser.database import Database
 from parser.channel import Channel
 from parser.mirror import Mirror
 from parser.video import Video
+from multiprocessing.pool import ThreadPool
 import requests
 import json
 
@@ -51,8 +52,6 @@ class Parser:
         return ""
 
     def load_channel_videos(self, channel):
-        print(f"Loading videos from {channel.name}...")
-
         html = self.send_request(channel.link)
         html.encoding = 'utf-8'
 
@@ -70,7 +69,27 @@ class Parser:
 
             channel.videos.append(video)
 
-        print("Videos has been loaded\n")
+    def load_channel(self, channel_id):
+        if channel_id == "":
+            return
+
+        mirror = self.get_working_mirror()
+
+        link = mirror.link + channel_id
+
+        html = self.send_request(link)
+        if html == None:
+            return
+
+        html.encoding = 'utf-8'
+        parsed_html = bs(html.text, 'html.parser')
+        html_name = parsed_html.select('span')[1]
+        channel_name = html_name.text
+
+        videos = []
+        channel = Channel(channel_name, link, videos)
+        self.load_channel_videos(channel)
+        self.channels.append(channel)
 
     def load_channels(self):
         if self.mirrors == []:
@@ -79,32 +98,17 @@ class Parser:
         mirror = self.get_working_mirror()
 
         self.channels = []
-        for channel_id in self.SUBS_LIST:
-            if channel_id == "":
-                continue
 
-            link = mirror.link + channel_id
+        print(f"Loading {len(self.SUBS_LIST)} channels")
 
-            print(f"Loading {link} channel...")
+        pool = ThreadPool(processes=len(self.SUBS_LIST))
+        pool.map(self.load_channel, self.SUBS_LIST)
 
-            html = self.send_request(link)
-            if html == None:
-                continue
-
-            html.encoding = 'utf-8'
-            parsed_html = bs(html.text, 'html.parser')
-            html_name = parsed_html.select('span')[1]
-            channel_name = html_name.text
-
-            print(f"Channel {channel_name} has been loaded")
-
-            videos = []
-            channel = Channel(channel_name, link, videos)
-            self.load_channel_videos(channel)
-            self.channels.append(channel)
-
+        for channel in self.channels:
             channel_dict, videos_dict = channel.toDict()
             self.database.insert_channel(channel_dict, videos_dict)
+
+        print("Complete!")
 
     def load_channels_from_database(self):
         chans = self.database.load_channels()
