@@ -51,6 +51,8 @@ class Parser:
         return ""
 
     def load_channel_videos(self, channel):
+        print(f"Loading videos from {channel.name}...")
+
         html = self.send_request(channel.link)
         html.encoding = 'utf-8'
 
@@ -68,6 +70,8 @@ class Parser:
 
             channel.videos.append(video)
 
+        print("Videos has been loaded\n")
+
     def load_channels(self):
         if self.mirrors == []:
             self.load_mirrors()
@@ -81,6 +85,8 @@ class Parser:
 
             link = mirror.link + channel_id
 
+            print(f"Loading {link} channel...")
+
             html = self.send_request(link)
             if html == None:
                 continue
@@ -89,6 +95,8 @@ class Parser:
             parsed_html = bs(html.text, 'html.parser')
             html_name = parsed_html.select('span')[1]
             channel_name = html_name.text
+
+            print(f"Channel {channel_name} has been loaded")
 
             videos = []
             channel = Channel(channel_name, link, videos)
