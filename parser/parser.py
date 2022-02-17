@@ -111,8 +111,8 @@ class Parser:
 
         self.channels = []
         for chan in chans:
-            ch = json.loads(chan[0].replace("'", '"'))
-            vd = json.loads(chan[1].replace("'", '"'))
+            ch = json.loads(chan[0].replace("'", '"').replace("\\", "\\\\"))
+            vd = json.loads(chan[1].replace("'", '"').replace("\\", "\\\\"))
 
             channel = Channel()
             channel.dictToChannel(ch, vd)
