@@ -33,6 +33,7 @@ class Parser:
 
     def send_request(self, link):
         resp = requests.get(link)
+        resp.encoding = 'utf-8'
 
         if resp.status_code == 200:
             return resp
@@ -59,15 +60,52 @@ class Parser:
                 return
 
     def get_working_mirror(self):
+        if self.mirrors == []:
+            self.load_mirrors()
+
         for mirror in self.mirrors:
             if mirror.is_work:
                 return mirror
 
-        return ""
+        return None
+
+    def is_link_to_channel(self, link):
+        return '/channel/' in link
+
+    def load_search_query(self, query):
+        mirror = self.get_working_mirror()
+
+        format_query = query.replace(" ", "+")
+        resp = self.send_request(mirror.link + '/search?q=' + format_query)
+        soup = bs(resp.text, 'html.parser')
+
+        items = []
+        for item_box in soup.find_all("div", {"class": "pure-u-1 pure-u-md-1-4"}):
+            nmLink = item_box.find("a", href=True)['href']
+            link = mirror.link + nmLink
+
+            if not self.is_link_to_channel(nmLink):
+                name = item_box.find_all("p")[1].text
+                preview = item_box.find("img")['src']
+
+                isWatched = nmLink in self.HISTORY
+
+                video = Video(name, link, preview, nmLink, isWatched)
+                items.append(video)
+            else:
+                item_name = item_box.select('p')[0]
+                channel_name = item_name.text
+
+                videos = []
+                channel = Channel(channel_name, link, videos)
+
+                self.load_channel_videos(channel)
+                items.append(channel)
+        
+        return items
 
     def load_channel_videos(self, channel):
         html = self.send_request(channel.link)
-        html.encoding = 'utf-8'
 
         mirror = self.get_working_mirror()
 
@@ -75,7 +113,7 @@ class Parser:
 
         for video_box in soup.find_all("div", {"class": "pure-u-1 pure-u-md-1-4"}):
             nmLink = video_box.find("a", href = True)['href']
-            link = mirror.link[:-1] + nmLink
+            link = mirror.link + nmLink
             name = video_box.find_all("p")[1].text
             preview = video_box.find("img")['src']
 
@@ -91,13 +129,12 @@ class Parser:
 
         mirror = self.get_working_mirror()
 
-        link = mirror.link + channel_id
+        link = mirror.link + '/channel/' + channel_id
 
         html = self.send_request(link)
         if html == None:
             return
 
-        html.encoding = 'utf-8'
         parsed_html = bs(html.text, 'html.parser')
         html_name = parsed_html.select('span')[1]
         channel_name = html_name.text

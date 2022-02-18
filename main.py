@@ -13,7 +13,7 @@ def pick_watching_type():
     option, index = pick(['Video and audio', 'Video only', 'Audio only'], 'Pick wathcing type: ', indicator=INDICATOR)
     return option
 
-def show_videos(channel):
+def show_videos(channel, search_dict={}):
     title = f'{channel.name} videos: '
     options = channel.get_video_names()
 
@@ -29,15 +29,18 @@ def show_videos(channel):
     option, index = pick(options, title, indicator=INDICATOR)
 
     if index == 0 and option == "..":
-        show_channels()
+        if search_dict != {}:
+            show_search_query(search_dict['query'], search_dict['list'])
+        else:
+            show_channels()
 
     video = channel.videos[index-1]
     parser.add_video_in_history(video)
 
     watching_type = pick_watching_type()
     video.play(watching_type)
-
-    show_videos(channel)
+    
+    show_videos(channel, search_dict)
 
 def show_channels():
     title = 'Your subscriptions: '
@@ -60,11 +63,45 @@ def show_channels():
     option, index = pick(options, title, indicator=INDICATOR)
     
     if option == ".." and index == 0:
-        exit()
+        return show_menu()
 
     channel = parser.channels[index-1]
     show_videos(channel)
-    
+   
+def show_search_query(query, search_list):
+    title = f'Result of {query}:'
+
+    options = []
+    for index, item in enumerate(search_list):
+        name = item.name
+        if type(item) == Channel:
+            name = "[" + name + "]"
+        options.append(name)
+
+    options.insert(0, "..")
+    option, index = pick(options, title, indicator=INDICATOR)
+
+    if option == '..' and index == 0:
+        return show_menu()
+        
+    item = search_list[index-1]
+    if type(item) == Channel:
+        show_videos(item, search_dict={'query': query, 'list': search_list})
+    else:
+        parser.add_video_in_history(item)
+
+        watching_type = pick_watching_type()
+        item.play(watching_type)
+
+        show_search_query(query, search_list)
+
+def ask_search_query():
+    query = input('Input your search query: ')
+
+    search_list = parser.load_search_query(query)
+
+    show_search_query(query, search_list)
+
 def ask_database_reload():
     title = 'Reload channels database? '
     options = ['No', 'Yes']
@@ -76,13 +113,26 @@ def ask_database_reload():
         parser.database = Database()
         parser.load_channels()
     
-    show_channels()
+    show_menu()
+
+def show_menu():
+    title = 'Menu: '
+    options =['..', 'Subscribes', 'Search']
+
+    option, index = pick(options, title, indicator=INDICATOR)
+    
+    if option == '..':
+        exit()
+    elif option == 'Subscribes':
+        show_channels()
+    elif option == 'Search':
+        ask_search_query()
 
 def main():
     if parser.load_channels_from_database():
         ask_database_reload()          
     else:
-        show_channels()
+        show_menu()
     
 if __name__ == "__main__":
     main()
