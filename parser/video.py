@@ -44,4 +44,5 @@ class Video:
         elif watching_type == "Audio only":
             mpv_command += "--vid=0"
 
+        print(f'Watching: {self.name} | {link[1:]}')
         os.system(mpv_command + link)
