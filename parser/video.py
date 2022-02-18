@@ -16,16 +16,22 @@ class Video:
             "name" : self.name.replace('"', "").replace("'", ""),
             "link" : self.link,
             "preview" : self.preview,
-            "nmLink" : self.nmLink
+            "nmLink" : self.nmLink,
+            "isNew" : str(self.isNew)
         }
 
         return video_dict
+
+    def str_to_bool(self, arg):
+        return True if arg == 'True' else False
 
     def dictToVideo(self, video_dict):
         self.name = video_dict['name']
         self.link = video_dict['link']
         self.preview = video_dict['preview']
         self.nmLink = video_dict['nmLink']
+
+        self.isNew = self.str_to_bool(video_dict['isNew'])
 
     def play(self, watching_type=""):
         self.isWatched = True

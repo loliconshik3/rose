@@ -52,11 +52,9 @@ class Channel:
             old_videos.append(video.nmLink)
 
         for video in self.videos: 
-            if not video.nmLink in old_videos:
+            if not video.nmLink in old_videos or video.isNew == True:
                 video.isNew = True
                 result = True
-
-        old_channel.videos = self.videos
 
         return result
 

@@ -26,6 +26,10 @@ def show_videos(channel, search_dict={}):
     options.insert(0, "..")
 
     channel.set_all_videos_old()
+    
+    channel_dict, videos_dict = channel.toDict()
+    parser.database.rewrite_channel(channel_dict, videos_dict)
+    
     option, index = pick(options, title, indicator=INDICATOR)
 
     if index == 0 and option == "..":
@@ -56,16 +60,22 @@ def show_channels():
         hasNewVideos = chan.has_new_videos(analog)
 
         if hasNewVideos:
+            channel_dict, videos_dict = chan.toDict()
+            parser.database.rewrite_channel(channel_dict, videos_dict)
             options[i] = '[!] ' + options[i]
 
     options.insert(0, "..")
-
     option, index = pick(options, title, indicator=INDICATOR)
     
     if option == ".." and index == 0:
         return show_menu()
 
     channel = parser.channels[index-1]
+    
+    analog = channel.find_analog_in_list(parser.databaseChannels)
+    if not analog == None:
+        analog.videos = channel.videos
+
     show_videos(channel)
    
 def show_search_query(query, search_list):
