@@ -1,7 +1,7 @@
-from parser.database import Database
-from parser.channel import Channel
-from parser.parser import Parser
-from parser.video import Video
+from src.database import Database
+from src.channel import Channel
+from src.parser import Parser
+from src.video import Video
 from pick import pick
 import sys,os
 
@@ -48,10 +48,11 @@ def show_videos(channel, search_dict={}):
 
 def show_channels():
     title = 'Your subscriptions: '
-    options = parser.get_channel_names()
+    options = parser.channels.get_channel_names()
 
+    channels = parser.channels.get_list()
     for i in range(len(options)):
-        chan = parser.channels[i]
+        chan = channels[i]
         analog = chan.find_analog_in_list(parser.databaseChannels)
         
         if analog == None:
@@ -70,7 +71,7 @@ def show_channels():
     if option == ".." and index == 0:
         return show_menu()
 
-    channel = parser.channels[index-1]
+    channel = channels[index-1]
     
     analog = channel.find_analog_in_list(parser.databaseChannels)
     if not analog == None:

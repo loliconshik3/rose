@@ -1,9 +1,10 @@
-from bs4 import BeautifulSoup as bs
-from parser.database import Database
-from parser.channel import Channel
-from parser.mirror import Mirror
-from parser.video import Video
+from src.channels_list import ChannelsList
+from src.database import Database
+from src.channel import Channel
+from src.mirror import Mirror
+from src.video import Video
 from multiprocessing.pool import ThreadPool
+from bs4 import BeautifulSoup as bs
 from os.path import exists
 import requests
 import json
@@ -14,9 +15,9 @@ class Parser:
         self.SUBS_LIST = [i.strip('\n').split(',')[0] for i in open('subscribes.txt')]
         self.MIRRORS = [i.strip('\n').split(',')[0] for i in open('mirrors')]
         self.databaseChannels = []
-        self.channels = []
         self.mirrors = []
-
+        
+        self.channels = ChannelsList([])
 
         self.HISTORY = []
         if exists('history.txt'):
@@ -105,9 +106,8 @@ class Parser:
         return items
 
     def load_channel_videos(self, channel):
-        html = self.send_request(channel.link)
-
         mirror = self.get_working_mirror()
+        html = self.send_request(mirror.link + '/channel/' + channel.link)
 
         soup = bs(html.text, 'html.parser')
 
@@ -140,7 +140,7 @@ class Parser:
         channel_name = html_name.text
 
         videos = []
-        channel = Channel(channel_name, link, videos)
+        channel = Channel(channel_name, channel_id, videos)
         self.load_channel_videos(channel)
         self.channels.append(channel)
 
@@ -150,14 +150,16 @@ class Parser:
 
         mirror = self.get_working_mirror()
 
-        self.channels = []
+        self.channels.clear()
 
         print(f"Loading {len(self.SUBS_LIST)} channels")
 
         pool = ThreadPool(processes=len(self.SUBS_LIST))
         pool.map(self.load_channel, self.SUBS_LIST)
 
-        for channel in self.channels:
+        self.channels.sort_channels_by_link_list(self.SUBS_LIST)
+        channels = self.channels.get_list()
+        for channel in channels:
             channel_dict, videos_dict = channel.toDict()
             self.database.insert_channel(channel_dict, videos_dict)
 
@@ -166,7 +168,7 @@ class Parser:
     def load_channels_from_database(self):
         chans = self.database.load_channels()
 
-        self.channels = []
+        self.channels.clear()
         for chan in chans:
             ch = json.loads(chan[1].replace("'", '"').replace("\\", "\\\\"))
             vd = json.loads(chan[2].replace("'", '"').replace("\\", "\\\\"))
@@ -180,19 +182,8 @@ class Parser:
             self.load_channels()
             return False
         else:
-            self.databaseChannels = self.channels
+            self.databaseChannels = self.channels.get_list()
             return True
-
-    def get_channel_names(self):
-        names = []
-        for channel in self.channels:
-            names.append(channel.name)
-        
-        return names
-
-    def print_channels(self):
-        for channel in self.channels:
-            print(f"{channel.name} | {channel.link} | {len(channel.videos)}")
 
     def print_mirrors(self):
         for mirror in self.mirrors:
