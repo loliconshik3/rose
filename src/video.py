@@ -5,8 +5,8 @@ class Video:
     def __init__(self, name="", link="", preview="", nmLink="", isWatched=False):
         self.name = name
         self.link = link
-        self.preview = preview
         self.nmLink = nmLink
+        self.preview = preview
         self.isWatched = isWatched
         
         self.isNew = False
@@ -15,9 +15,10 @@ class Video:
         video_dict = {
             "name" : self.name.replace('"', "").replace("'", ""),
             "link" : self.link,
-            "preview" : self.preview,
             "nmLink" : self.nmLink,
-            "isNew" : str(self.isNew)
+            "preview" : self.preview,
+            "isNew" : str(self.isNew),
+            "isWatched" : str(self.isWatched)
         }
 
         return video_dict
@@ -28,10 +29,11 @@ class Video:
     def dictToVideo(self, video_dict):
         self.name = video_dict['name']
         self.link = video_dict['link']
-        self.preview = video_dict['preview']
         self.nmLink = video_dict['nmLink']
+        self.preview = video_dict['preview']
 
         self.isNew = self.str_to_bool(video_dict['isNew'])
+        self.isWatched = self.str_to_bool(video_dict['isWatched'])
 
     def play(self, watching_type=""):
         self.isWatched = True
@@ -46,3 +48,6 @@ class Video:
 
         print(f'Watching: {self.name} | {link[1:]}')
         os.system(mpv_command + link)
+
+    def copy(self):
+        return Video(self.name, self.link, self.preview, self.nmLink, self.isWatched)

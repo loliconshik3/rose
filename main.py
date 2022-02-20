@@ -20,11 +20,10 @@ def show_videos(channel, search_dict={}):
     for i in range(len(options)):
         if channel.videos[i].isNew:
             options[i] = '[!] ' + options[i]
-        if channel.videos[i].isWatched:
+        if parser.history.is_video_in_history(channel.videos[i]):
             options[i] = '[+] ' + options[i]
 
     options.insert(0, "..")
-
     channel.set_all_videos_old()
     
     channel_dict, videos_dict = channel.toDict()
@@ -39,6 +38,7 @@ def show_videos(channel, search_dict={}):
             show_channels()
 
     video = channel.videos[index-1]
+
     parser.add_video_in_history(video)
 
     watching_type = pick_watching_type()
@@ -53,6 +53,7 @@ def show_channels():
     channels = parser.channels.get_list()
     for i in range(len(options)):
         chan = channels[i]
+
         analog = chan.find_analog_in_list(parser.databaseChannels)
         
         if analog == None:
@@ -74,8 +75,8 @@ def show_channels():
     if option == ".." and index == 0:
         return show_menu()
 
-    channel = channels[index-1]
-    
+    channel = parser.channels.get_list()[index-1]
+
     analog = channel.find_analog_in_list(parser.databaseChannels)
     if not analog == None:
         analog.videos = channel.videos
@@ -129,9 +130,29 @@ def ask_database_reload():
     
     show_menu()
 
+def show_history():
+    title = 'History: '
+
+    options = ['..']
+    videos = parser.history.videos
+    for video in videos:
+        options.append(video.name)
+
+    option, index = pick(options, title, indicator=INDICATOR)
+
+    if option == '..' and index == 0:
+        show_menu()
+
+    video = videos[index-1]
+
+    watching_type = pick_watching_type()
+    video.play(watching_type)
+
+    show_history()
+
 def show_menu():
     title = 'Menu: '
-    options =['..', 'Subscribes', 'Search']
+    options = ['..', 'Subscribes', 'Search', 'History']
 
     option, index = pick(options, title, indicator=INDICATOR)
     
@@ -141,8 +162,11 @@ def show_menu():
         show_channels()
     elif option == 'Search':
         ask_search_query()
+    elif option == 'History':
+        show_history()
 
 def main():
+    parser.load_history_from_database()
     if parser.load_channels_from_database():
         ask_database_reload()          
     else:

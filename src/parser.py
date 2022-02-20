@@ -1,6 +1,7 @@
 from src.channels_list import ChannelsList
 from src.database import Database
 from src.channel import Channel
+from src.history import History
 from src.mirror import Mirror
 from src.video import Video
 from multiprocessing.pool import ThreadPool
@@ -17,21 +18,17 @@ class Parser:
         self.databaseChannels = []
         self.mirrors = []
         
-        lst = []
-        self.channels = ChannelsList(lst)
-
-        self.HISTORY = []
-        if exists('history.txt'):
-            self.HISTORY = [i.strip('\n').split(',')[0] for i in open('history.txt')]
-
+        self.channels = ChannelsList([])
+        self.history = History([])
+        
         self.database = Database()
 
     def add_video_in_history(self, video):
-        self.HISTORY.append(video.nmLink)
+        vid = video.copy()
 
-        with open('history.txt', 'a') as file:
-            file.write(video.nmLink + '\n')
-            file.close()
+        self.history.append(vid)
+
+        self.database.insert_video_in_history(vid)
 
     def send_request(self, link):
         resp = requests.get(link)
@@ -90,9 +87,9 @@ class Parser:
                 name = item_box.find_all("p")[1].text
                 preview = item_box.find("img")['src']
 
-                isWatched = nmLink in self.HISTORY
+                video = Video(name, link, preview, nmLink)
+                video.isWatched = self.history.is_video_in_history(video)
 
-                video = Video(name, link, preview, nmLink, isWatched)
                 items.append(video)
             else:
                 item_name = item_box.select('p')[0]
@@ -119,9 +116,8 @@ class Parser:
             name = video_box.find_all("p")[1].text
             preview = video_box.find("img")['src']
 
-            isWatched = nmLink in self.HISTORY
-
-            video = Video(name, link, preview, nmLink, isWatched)
+            video = Video(name, link, preview, nmLink)
+            video.isWatched = self.history.is_video_in_history(video)
 
             channel.videos.append(video)
 
@@ -167,25 +163,34 @@ class Parser:
 
         print("Complete!")
 
+    def load_history_from_database(self):
+        videos = self.database.load_history()
+        for vid in videos:
+            video = Video(name=vid[1], nmLink=vid[0])
+            self.history.append(video)
+
     def load_channels_from_database(self):
         chans = self.database.load_channels()
 
+        result = False
         self.channels.clear()
         for chan in chans:
             ch = json.loads(chan[1].replace("'", '"').replace("\\", "\\\\"))
             vd = json.loads(chan[2].replace("'", '"').replace("\\", "\\\\"))
 
             channel = Channel()
-            channel.dictToChannel(ch, vd, self.HISTORY)
+            channel.dictToChannel(ch, vd, self.history.videos)
             
             self.channels.append(channel)
 
         if self.channels.get_list() == []:
             self.load_channels()
-            return False
+            result = False
         else:
             self.databaseChannels = self.channels.get_list().copy()
-            return True
+            result = True
+
+        return result
 
     def print_mirrors(self):
         for mirror in self.mirrors:
