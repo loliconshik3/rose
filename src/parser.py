@@ -98,7 +98,8 @@ class Parser:
                 channel_name = item_name.text
 
                 videos = []
-                channel = Channel(channel_name, link, videos)
+                channel_id = nmLink.replace('/channel/', '')
+                channel = Channel(channel_name, channel_id, videos)
 
                 self.load_channel_videos(channel)
                 items.append(channel)
@@ -108,6 +109,8 @@ class Parser:
     def load_channel_videos(self, channel):
         mirror = self.get_working_mirror()
         html = self.send_request(mirror.link + '/channel/' + channel.link)
+
+        print(mirror.link + '/channel/' + channel.link)
 
         soup = bs(html.text, 'html.parser')
 
