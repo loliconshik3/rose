@@ -20,10 +20,8 @@ class Database:
         self.cursor.execute("INSERT INTO channels VALUES (?, ?, ?)", chan_list)
         self.base.commit()
 
-    def rewrite_channel(self, channel_dict, videos_dict):
+    def rewrite_channel_videos(self, channel_dict, videos_dict):
         link = channel_dict['link']
-        chan_list = (str(link), str(channel_dict), videos_dict)
-        self.cursor.execute("UPDATE channels SET channel = ? WHERE link = ?", [str(channel_dict), link])
         self.cursor.execute("UPDATE channels SET videos = ? WHERE link = ?", [videos_dict, link])
         self.base.commit()
 

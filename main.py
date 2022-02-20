@@ -28,7 +28,7 @@ def show_videos(channel, search_dict={}):
     channel.set_all_videos_old()
     
     channel_dict, videos_dict = channel.toDict()
-    parser.database.rewrite_channel(channel_dict, videos_dict)
+    parser.database.rewrite_channel_videos(channel_dict, videos_dict)
     
     option, index = pick(options, title, indicator=INDICATOR)
 
@@ -62,7 +62,7 @@ def show_channels():
 
         if hasNewVideos:
             channel_dict, videos_dict = chan.toDict()
-            parser.database.rewrite_channel(channel_dict, videos_dict)
+            parser.database.rewrite_channel_videos(channel_dict, videos_dict)
             options[i] = '[!] ' + options[i]
 
     options.insert(0, "..")

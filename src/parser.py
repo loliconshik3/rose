@@ -17,7 +17,8 @@ class Parser:
         self.databaseChannels = []
         self.mirrors = []
         
-        self.channels = ChannelsList([])
+        lst = []
+        self.channels = ChannelsList(lst)
 
         self.HISTORY = []
         if exists('history.txt'):
@@ -110,8 +111,6 @@ class Parser:
         mirror = self.get_working_mirror()
         html = self.send_request(mirror.link + '/channel/' + channel.link)
 
-        print(mirror.link + '/channel/' + channel.link)
-
         soup = bs(html.text, 'html.parser')
 
         for video_box in soup.find_all("div", {"class": "pure-u-1 pure-u-md-1-4"}):
@@ -180,12 +179,12 @@ class Parser:
             channel.dictToChannel(ch, vd, self.HISTORY)
             
             self.channels.append(channel)
-            
-        if self.channels == []:
+
+        if self.channels.get_list() == []:
             self.load_channels()
             return False
         else:
-            self.databaseChannels = self.channels.get_list()
+            self.databaseChannels = self.channels.get_list().copy()
             return True
 
     def print_mirrors(self):
