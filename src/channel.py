@@ -44,6 +44,13 @@ class Channel:
             if channel.link == self.link:
                 return channel
 
+    def is_full_watched(self):
+        for video in self.videos:
+            if not video.isWatched:
+                return False
+
+        return True
+
     def has_new_videos(self, old_channel):
         result = False
         old_videos = []

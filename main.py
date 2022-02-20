@@ -65,6 +65,9 @@ def show_channels():
             parser.database.rewrite_channel_videos(channel_dict, videos_dict)
             options[i] = '[!] ' + options[i]
 
+        if chan.is_full_watched():
+            options[i] = '[+] ' + options[i]
+
     options.insert(0, "..")
     option, index = pick(options, title, indicator=INDICATOR)
     
