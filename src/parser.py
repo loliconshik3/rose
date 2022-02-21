@@ -51,15 +51,18 @@ class Parser:
 
                 data_boxes = item_box.find_all("div", {"class": "video-card-row flexible"})
 
-                channel_data = data_boxes[0].select('p')[0]
-                author = channel_data.text
-
-                video_data = data_boxes[1].select('p')
+                if len(data_boxes) > 0:
+                    channel_data = data_boxes[0].select('p')[0]
+                    author = channel_data.text
+                    video_data = data_boxes[1].select('p')
+                else:
+                    author = 'None'
+                    video_data = []
 
                 if len(video_data) == 2:
                     shared = video_data[0].text.replace('Shared ', '')
                     views = video_data[1].text.replace(' views', '')
-                else:
+                elif len(video_data) == 1:
                     shared = 'None'
                     views = video_data[0].text.replace(' views', '')
 
