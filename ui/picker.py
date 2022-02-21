@@ -79,6 +79,40 @@ class Picker:
             line = line[:limit-3] + '...'
         return line
 
+    def draw_channel(self, screen, item):
+        y = 1
+        max_y, max_x = screen.getmaxyx()
+        middle_y, middle_x = int(max_y/2), int(max_x/2)
+
+        name = self.crop_line_to_limit(item.name, middle_x-2)
+        watched_string = f' [{item.get_count_of_watched_videos()}/{len(item.videos)}]'
+        screen.addnstr(y, middle_x, name + watched_string, max_x-2)
+        y += 1
+
+        subs_string = self.crop_line_to_limit(f'Subscribes: {item.subscribes}', middle_x-4)
+        screen.addnstr(y, middle_x+2, subs_string, max_x-2)
+
+    def draw_video(self, screen, item):
+        y = 1
+        max_y, max_x = screen.getmaxyx()
+        middle_y, middle_x = int(max_y/2), int(max_x/2)
+
+        name = self.crop_line_to_limit(item.name, middle_x-2)
+        screen.addnstr(y, middle_x, name, max_x-2)
+        y += 1
+
+        author_str = self.crop_line_to_limit(f'Author: {item.author}', middle_x-4)
+        screen.addnstr(y, middle_x+2, author_str, max_x-2)
+        y += 1
+
+        shared_string = self.crop_line_to_limit(f'Shared: {item.shared}', middle_x-4)
+        screen.addnstr(y, middle_x+2, shared_string, max_x-2)
+        y += 1
+
+        views_string = self.crop_line_to_limit(f'Views: {item.views}', middle_x-4)
+        screen.addnstr(y, middle_x+2, views_string, max_x-2)
+    
+
     def draw(self, screen):
         # clear screen
         screen.clear()
@@ -111,29 +145,10 @@ class Picker:
         # item description
         y = 1
         item = self.items[self.index]
-        if type(item) in [Channel, Video]:
-            name = self.crop_line_to_limit(item.name, middle_x-2)
-            if type(item) == Channel:
-                watched_string = f' [{item.get_count_of_watched_videos()}/{len(item.videos)}]'
-                screen.addnstr(y, middle_x, name + watched_string, max_x-2)
-                y += 1
-
-                subs_string = self.crop_line_to_limit(f'Subscribes: {item.subscribes}', middle_x-4)
-                screen.addnstr(y, middle_x+2, subs_string, max_x-2)
-            elif type(item) == Video:
-                screen.addnstr(y, middle_x, name, max_x-2)
-                y += 1
-
-                author_str = self.crop_line_to_limit(f'Author: {item.author}', middle_x-4)
-                screen.addnstr(y, middle_x+2, author_str, max_x-2)
-                y += 1
-
-                shared_string = self.crop_line_to_limit(f'Shared: {item.shared}', middle_x-4)
-                screen.addnstr(y, middle_x+2, shared_string, max_x-2)
-                y += 1
-
-                views_string = self.crop_line_to_limit(f'Views: {item.views}', middle_x-4)
-                screen.addnstr(y, middle_x+2, views_string, max_x-2)
+        if type(item) == Channel:
+            self.draw_channel(screen, item)
+        elif type(item) == Video:
+            self.draw_video(screen, item)
 
         screen.refresh()
 
@@ -169,6 +184,3 @@ def pick(title='', items=[], indicator='->'):
     picker = Picker(title, items, indicator)
     
     return picker.start()
-
-if __name__ == '__main__':
-    pick('Test picker', [Channel('kisa'), 'Penis', Video('pisya')])

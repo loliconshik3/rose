@@ -49,7 +49,7 @@ class Parser:
                 name = item_box.find_all("p")[1].text
                 preview = item_box.find("img")['src']
 
-                data_boxes = video_box.find_all("div", {"class": "video-card-row flexible"})
+                data_boxes = item_box.find_all("div", {"class": "video-card-row flexible"})
 
                 channel_data = data_boxes[0].select('p')[0]
                 author = channel_data.text
@@ -67,9 +67,12 @@ class Parser:
                 item_name = item_box.select('p')[0]
                 channel_name = item_name.text
 
+                item_subs = item_box.select('p')[1]
+                subs = item_subs.text.replace(' subscribers', '')
+
                 videos = []
                 channel_id = nmLink.replace('/channel/', '')
-                channel = Channel(channel_name, channel_id, videos)
+                channel = Channel(channel_name, channel_id, videos, subs)
 
                 self.load_channel_videos(channel, history)
                 items.append(channel)
