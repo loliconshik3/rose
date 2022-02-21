@@ -38,6 +38,9 @@ class Channel:
             video.isWatched = video.nmLink in history
             self.videos.append(video)
 
+    def get_last_video_date(self):
+        return self.videos[0].shared
+
     def set_all_videos_old(self):
         for video in self.videos:
             video.isNew = False

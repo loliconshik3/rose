@@ -91,6 +91,11 @@ class Picker:
 
         subs_string = self.crop_line_to_limit(f'Subscribes: {item.subscribes}', middle_x-4)
         screen.addnstr(y, middle_x+2, subs_string, max_x-2)
+        y += 1
+
+        shared_str = self.crop_line_to_limit(f'Last video: {item.get_last_video_date()}', middle_x-4)
+        screen.addnstr(y, middle_x+2, shared_str, max_x-2)
+        
 
     def draw_video(self, screen, item):
         y = 1
