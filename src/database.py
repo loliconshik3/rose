@@ -35,12 +35,11 @@ class Database:
         self.base.commit()
 
     def insert_video_in_history(self, video):
-        id = video.nmLink
-        name = video.name
-
-        video_list = (str(id), str(name))
-        self.history_cursor.execute("INSERT OR REPLACE INTO history VALUES (?, ?)", video_list)
+        video_list = (str(video.nmLink), str(video.name))
+        self.history_cursor.execute("INSERT INTO history VALUES (?, ?)", video_list)
         self.history_base.commit()
+
+        print([video_list])
 
     def load_channels(self):
         return self.cursor.execute("SELECT * FROM channels")

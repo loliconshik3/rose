@@ -1,3 +1,4 @@
+from pick import pick
 import os
 
 class Video:
@@ -35,9 +36,15 @@ class Video:
         self.isNew = self.str_to_bool(video_dict['isNew'])
         self.isWatched = self.str_to_bool(video_dict['isWatched'])
 
-    def play(self, watching_type=""):
+    def pick_watching_type(self):
+        option, index = pick(['Video and audio', 'Video only', 'Audio only'], 'Pick wathcing type: ', indicator="->")
+        return option
+
+    def play(self):
         self.isWatched = True
         
+        watching_type = self.pick_watching_type()
+
         mpv_command = "mpv "
         link = " https://youtube.com" + self.nmLink
 

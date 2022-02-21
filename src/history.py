@@ -12,7 +12,10 @@ class History:
 
         return False
 
-    def append(self, video):
+    def append(self, video, db):
         if not self.is_video_in_history(video):
             self.videos.append(video)
+            
+            if db != None:
+                db.insert_video_in_history(video)
 
