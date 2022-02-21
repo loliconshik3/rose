@@ -4,7 +4,7 @@ from src.channel import Channel
 from src.history import History
 from src.parser import Parser
 from src.video import Video
-from pick import pick
+from ui.picker import pick
 import sys,os
 import json
 
@@ -54,14 +54,12 @@ class MainWindow:
 
     def show_videos(self, channel, search_dict={}):
         title = f'{channel.name} videos: '
-        options = channel.get_video_names()
+        
+        options = [video for video in channel.videos]
 
         for i in range(len(options)):
-            if channel.videos[i].isNew:
-                options[i] = '[!] ' + options[i]
             if self.history.is_video_in_history(channel.videos[i]):
                 channel.videos[i].isWatched = True
-                options[i] = '[+] ' + options[i]
 
         options.insert(0, "..")
         channel.set_all_videos_old()
@@ -69,7 +67,7 @@ class MainWindow:
         channel_dict, videos_dict = channel.toDict()
         self.database.rewrite_channel_videos(channel_dict, videos_dict)
         
-        option, index = pick(options, title, indicator=self.indicator)
+        option, index = pick(title, options, indicator=self.indicator)
 
         if index == 0 and option == "..":
             if search_dict != {}:
@@ -86,7 +84,7 @@ class MainWindow:
 
     def show_channels(self):
         title = 'Your subscriptions: '
-        options = self.channels.get_channel_names()
+        options = [chan for chan in self.channels.get_list()]
 
         channels = self.channels.get_list()
         for i in range(len(options)):
@@ -97,18 +95,20 @@ class MainWindow:
             if analog == None:
                 continue
 
+            for vid in chan.videos:
+                if self.history.is_video_in_history(vid):
+                    vid.isWatched = True
+
             hasNewVideos = chan.has_new_videos(analog)
 
             if hasNewVideos:
                 channel_dict, videos_dict = chan.toDict()
                 self.database.rewrite_channel_videos(channel_dict, videos_dict)
-                options[i] = '[!] ' + options[i]
+                #options[i] = '[!] ' + options[i]
 
-            if chan.is_full_watched():
-                options[i] = '[+] ' + options[i]
 
         options.insert(0, "..")
-        option, index = pick(options, title, indicator=self.indicator)
+        option, index = pick(title, options, indicator=self.indicator)
         
         if option == ".." and index == 0:
             return self.show_menu()
@@ -126,17 +126,13 @@ class MainWindow:
 
         options = []
         for index, item in enumerate(search_list):
-            name = item.name
-            if type(item) == Channel:
-                name = "[" + name + "]"
-            else:
+            if type(item) == Video:
                 if self.history.is_video_in_history(item):
                     item.isWatched = True
-                    name = '[+] ' + name
-            options.append(name)
+            options.append(item)
 
         options.insert(0, "..")
-        option, index = pick(options, title, indicator=self.indicator)
+        option, index = pick(title, options, indicator=self.indicator)
 
         if option == '..' and index == 0:
             return self.show_menu()
@@ -167,7 +163,7 @@ class MainWindow:
         title = 'Reload channels database? '
         options = ['No', 'Yes']
 
-        option, index = pick(options, title, indicator=self.indicator)
+        option, index = pick(title, options, indicator=self.indicator)
         
         if option == 'Yes' and index == 1:
             os.system('rm channels.db')
@@ -186,7 +182,7 @@ class MainWindow:
 
         options.reverse()
         options.insert(0, '..')
-        option, index = pick(options, title, indicator=self.indicator)
+        option, index = pick(title, options, indicator=self.indicator)
 
         if option == '..' and index == 0:
             self.show_menu()
@@ -200,7 +196,7 @@ class MainWindow:
         title = 'Menu: '
         options = ['..', 'Subscribes', 'Search', 'History']
 
-        option, index = pick(options, title, indicator=self.indicator)
+        option, index = pick(title, options, indicator=self.indicator)
         
         if option == '..':
             exit()

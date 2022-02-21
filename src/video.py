@@ -3,13 +3,15 @@ import os
 
 class Video:
 
-    def __init__(self, name="", link="", preview="", nmLink="", isWatched=False):
+    def __init__(self, name="", link="", preview="", nmLink="", isWatched=False, shared="", views=""):
         self.name = name
         self.link = link
         self.nmLink = nmLink
         self.preview = preview
         self.isWatched = isWatched
-        
+        self.shared = shared
+        self.views = views
+
         self.isNew = False
 
     def toDict(self):
@@ -19,7 +21,9 @@ class Video:
             "nmLink" : self.nmLink,
             "preview" : self.preview,
             "isNew" : str(self.isNew),
-            "isWatched" : str(self.isWatched)
+            "isWatched" : str(self.isWatched),
+            "shared" : self.shared,
+            "views" : self.views
         }
 
         return video_dict
@@ -32,6 +36,8 @@ class Video:
         self.link = video_dict['link']
         self.nmLink = video_dict['nmLink']
         self.preview = video_dict['preview']
+        self.shared = video_dict['shared']
+        self.views = video_dict['views']
 
         self.isNew = self.str_to_bool(video_dict['isNew'])
         self.isWatched = self.str_to_bool(video_dict['isWatched'])

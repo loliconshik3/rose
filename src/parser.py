@@ -49,7 +49,13 @@ class Parser:
                 name = item_box.find_all("p")[1].text
                 preview = item_box.find("img")['src']
 
-                video = Video(name, link, preview, nmLink)
+                data_box = item_box.find_all("div", {"class": "video-card-row flexible"})[1]
+                video_data = data_box.select('p')
+
+                shared = video_data[0].text.replace('Shared ', '')
+                views = video_data[1].text.replace(' views', '')
+
+                video = Video(name, link, preview, nmLink, False, shared, views)
                 video.isWatched = history.is_video_in_history(video)
 
                 items.append(video)
@@ -78,7 +84,13 @@ class Parser:
             name = video_box.find_all("p")[1].text
             preview = video_box.find("img")['src']
 
-            video = Video(name, link, preview, nmLink)
+            data_box = video_box.find_all("div", {"class": "video-card-row flexible"})[1]
+            video_data = data_box.select('p')
+
+            shared = video_data[0].text.replace('Shared ', '')
+            views = video_data[1].text.replace(' views', '')
+
+            video = Video(name, link, preview, nmLink, False, shared, views)
             video.isWatched = history.is_video_in_history(video)
 
             channel.videos.append(video)
@@ -99,8 +111,11 @@ class Parser:
         html_name = parsed_html.select('span')[1]
         channel_name = html_name.text
 
+        html_subs = parsed_html.find('a', id='subscribe').select('b')[0]
+        subs = html_subs.text.replace('Subscribe | ', '')
+
         videos = []
-        channel = Channel(channel_name, channel_id, videos)
+        channel = Channel(channel_name, channel_id, videos, subs)
         self.load_channel_videos(channel, self.history)
         self.channels.append(channel)
 

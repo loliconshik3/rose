@@ -2,10 +2,11 @@ from src.video import Video
 
 class Channel:
 
-    def __init__(self, name="", link="", videos=[]):
+    def __init__(self, name="", link="", videos=[], subscribes=""):
         self.name = name
         self.link = link
         self.videos = videos
+        self.subscribes = subscribes
 
     def get_video_names(self):
         names = []
@@ -20,6 +21,7 @@ class Channel:
         channel_dict = {
             "name" : self.name,
             "link" : self.link,
+            "subscribes" : self.subscribes
         }
 
         return channel_dict, str(videos_list)
@@ -27,6 +29,7 @@ class Channel:
     def dictToChannel(self, channel_dict, videos_list, history):
         self.name = channel_dict['name']
         self.link = channel_dict['link']
+        self.subscribes = channel_dict['subscribes']
 
         self.videos = []
         for video_dict in videos_list:
@@ -43,6 +46,13 @@ class Channel:
         for channel in channels_list:
             if channel.link == self.link:
                 return channel
+
+    def get_count_of_watched_videos(self):
+        count = 0
+        for video in self.videos:
+            if video.isWatched:
+                count += 1
+        return count
 
     def is_full_watched(self):
         for video in self.videos:

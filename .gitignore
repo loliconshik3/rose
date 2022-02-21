@@ -1,4 +1,5 @@
 src/__pycache__
+ui/__pycache__
 channels.db
 history.db
 subscribes.txt
