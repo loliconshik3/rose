@@ -49,13 +49,17 @@ class Parser:
                 name = item_box.find_all("p")[1].text
                 preview = item_box.find("img")['src']
 
-                data_box = item_box.find_all("div", {"class": "video-card-row flexible"})[1]
-                video_data = data_box.select('p')
+                data_boxes = video_box.find_all("div", {"class": "video-card-row flexible"})
+
+                channel_data = data_boxes[0].select('p')[0]
+                author = channel_data.text
+
+                video_data = data_boxes[1].select('p')
 
                 shared = video_data[0].text.replace('Shared ', '')
                 views = video_data[1].text.replace(' views', '')
 
-                video = Video(name, link, preview, nmLink, False, shared, views)
+                video = Video(name, link, preview, nmLink, False, shared, views, author)
                 video.isWatched = history.is_video_in_history(video)
 
                 items.append(video)
@@ -84,13 +88,21 @@ class Parser:
             name = video_box.find_all("p")[1].text
             preview = video_box.find("img")['src']
 
-            data_box = video_box.find_all("div", {"class": "video-card-row flexible"})[1]
-            video_data = data_box.select('p')
+            data_boxes = video_box.find_all("div", {"class": "video-card-row flexible"})
 
-            shared = video_data[0].text.replace('Shared ', '')
-            views = video_data[1].text.replace(' views', '')
+            channel_data = data_boxes[0].select('p')[0]
+            author = channel_data.text
 
-            video = Video(name, link, preview, nmLink, False, shared, views)
+            video_data = data_boxes[1].select('p')
+
+            if len(video_data) == 2:
+                shared = video_data[0].text.replace('Shared ', '')
+                views = video_data[1].text.replace(' views', '')
+            else:
+                shared = 'None'
+                views = video_data[0].text.replace(' views', '')
+
+            video = Video(name, link, preview, nmLink, False, shared, views, author)
             video.isWatched = history.is_video_in_history(video)
 
             channel.videos.append(video)

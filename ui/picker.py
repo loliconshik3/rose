@@ -124,6 +124,10 @@ class Picker:
                 screen.addnstr(y, middle_x, name, max_x-2)
                 y += 1
 
+                author_str = self.crop_line_to_limit(f'Author: {item.author}', middle_x-4)
+                screen.addnstr(y, middle_x+2, author_str, max_x-2)
+                y += 1
+
                 shared_string = self.crop_line_to_limit(f'Shared: {item.shared}', middle_x-4)
                 screen.addnstr(y, middle_x+2, shared_string, max_x-2)
                 y += 1

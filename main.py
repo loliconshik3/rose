@@ -170,7 +170,7 @@ class MainWindow:
             self.database = Database()
             self.load_channels()
 
-        self.show_menu()
+        self.show_channels()
 
     def show_history(self):
         title = 'History: '
@@ -201,7 +201,11 @@ class MainWindow:
         if option == '..':
             exit()
         elif option == 'Subscribes':
-            self.show_channels()
+            if self.channels.get_list() != []:
+                self.ask_database_reload()
+            else:
+                self.load_channels_from_database()
+                self.show_channels()
         elif option == 'Search':
             self.ask_search_query()
         elif option == 'History':
@@ -211,10 +215,7 @@ def main():
     window = MainWindow()
 
     window.load_history_from_database()
-    if window.load_channels_from_database():
-        window.ask_database_reload()          
-    else:
-        window.show_menu()
+    window.show_menu()
     
 if __name__ == "__main__":
     main()
