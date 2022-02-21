@@ -3,7 +3,7 @@ import os
 
 class Video:
 
-    def __init__(self, name="", link="", preview="", nmLink="", isWatched=False, shared="", views="", author=""):
+    def __init__(self, name="", link="", preview="", nmLink="", isWatched=False, shared="", views="", author="", length=""):
         self.name = name
         self.link = link
         self.nmLink = nmLink
@@ -12,6 +12,7 @@ class Video:
         self.shared = shared
         self.views = views
         self.author = author
+        self.length = length
 
         self.isNew = False
 
@@ -25,7 +26,8 @@ class Video:
             "isWatched" : str(self.isWatched),
             "shared" : self.shared,
             "views" : self.views,
-            "author" : self.author
+            "author" : self.author,
+            "length" : self.length
         }
 
         return video_dict
@@ -41,6 +43,7 @@ class Video:
         self.shared = video_dict['shared']
         self.views = video_dict['views']
         self.author = video_dict['author']
+        self.length = video_dict['length']
 
         self.isNew = self.str_to_bool(video_dict['isNew'])
         self.isWatched = self.str_to_bool(video_dict['isWatched'])

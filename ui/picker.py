@@ -116,6 +116,10 @@ class Picker:
 
         views_string = self.crop_line_to_limit(f'Views: {item.views}', middle_x-4)
         screen.addnstr(y, middle_x+2, views_string, max_x-2)
+        y += 1
+
+        length_str = self.crop_line_to_limit(f'Length: {item.length}', middle_x-4)
+        screen.addnstr(y, middle_x+2, length_str, max_x-2)
     
 
     def draw(self, screen):

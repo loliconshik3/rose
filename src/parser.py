@@ -49,6 +49,10 @@ class Parser:
                 name = item_box.find_all("p")[1].text
                 preview = item_box.find("img")['src']
 
+                len_box = item_box.find("p", {"class": "length"})
+                if len_box != None: length = len_box.text.replace(' ', '')
+                else: length = "None"
+
                 data_boxes = item_box.find_all("div", {"class": "video-card-row flexible"})
 
                 if len(data_boxes) > 0:
@@ -66,7 +70,7 @@ class Parser:
                     shared = 'None'
                     views = video_data[0].text.replace(' views', '')
 
-                video = Video(name, link, preview, nmLink, False, shared, views, author)
+                video = Video(name, link, preview, nmLink, False, shared, views, author, length)
                 video.isWatched = history.is_video_in_history(video)
 
                 items.append(video)
@@ -98,6 +102,10 @@ class Parser:
             name = video_box.find_all("p")[1].text
             preview = video_box.find("img")['src']
 
+            len_box = video_box.find("p", {"class": "length"})
+            if len_box != None: length = len_box.text.replace(' ', '')
+            else: length = "None"
+
             data_boxes = video_box.find_all("div", {"class": "video-card-row flexible"})
 
             channel_data = data_boxes[0].select('p')[0]
@@ -112,7 +120,7 @@ class Parser:
                 shared = 'None'
                 views = video_data[0].text.replace(' views', '')
 
-            video = Video(name, link, preview, nmLink, False, shared, views, author)
+            video = Video(name, link, preview, nmLink, False, shared, views, author, length)
             video.isWatched = history.is_video_in_history(video)
 
             channel.videos.append(video)
