@@ -62,7 +62,9 @@ class Parser:
                 else:
                     author = 'None'
                     video_data = []
-
+                
+                shared = ''
+                views = ''
                 if len(video_data) == 2:
                     shared = video_data[0].text.replace('Shared ', '')
                     views = video_data[1].text.replace(' views', '')
