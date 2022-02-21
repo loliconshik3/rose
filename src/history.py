@@ -19,3 +19,7 @@ class History:
             if db != None:
                 db.insert_video_in_history(video)
 
+    def reverse(self):
+        videos = self.videos.copy()
+        videos.reverse()
+        return videos

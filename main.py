@@ -187,6 +187,7 @@ class MainWindow:
         if option == '..' and index == 0:
             self.show_menu()
 
+        videos = self.history.reverse()
         video = videos[index-1]
         video.play()
 
