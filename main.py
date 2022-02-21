@@ -175,11 +175,7 @@ class MainWindow:
     def show_history(self):
         title = 'History: '
 
-        options = []
-        videos = self.history.videos
-        for video in videos:
-            options.append(video.name)
-
+        options = self.history.videos.copy()
         options.reverse()
         options.insert(0, '..')
         option, index = pick(title, options, indicator=self.indicator)
