@@ -56,8 +56,12 @@ class Parser:
 
                 video_data = data_boxes[1].select('p')
 
-                shared = video_data[0].text.replace('Shared ', '')
-                views = video_data[1].text.replace(' views', '')
+                if len(video_data) == 2:
+                    shared = video_data[0].text.replace('Shared ', '')
+                    views = video_data[1].text.replace(' views', '')
+                else:
+                    shared = 'None'
+                    views = video_data[0].text.replace(' views', '')
 
                 video = Video(name, link, preview, nmLink, False, shared, views, author)
                 video.isWatched = history.is_video_in_history(video)
