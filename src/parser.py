@@ -164,7 +164,7 @@ class Parser:
         self.channels = channels
         self.history = history
 
-        if len(self.SUBS_LIST) > 0:
+        if len(self.SUBS_LIST) == 0:
             return
 
         print(f"Loading {len(self.SUBS_LIST)} channels")
