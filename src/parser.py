@@ -14,7 +14,10 @@ import json
 class Parser:
 
     def __init__(self):
-        self.SUBS_LIST = [i.strip('\n').split(',')[0] for i in open('subscribes.txt')]
+        
+        if exists('subscribes.txt'): self.SUBS_LIST = [i.strip('\n').split(',')[0] for i in open('subscribes.txt')]
+        else: self.SUBS_LIST = []
+
         self.databaseChannels = []
         self.mirrors = MirrorsList()
         self.channels = None
@@ -160,6 +163,9 @@ class Parser:
         channels.clear()
         self.channels = channels
         self.history = history
+
+        if len(self.SUBS_LIST) > 0:
+            return
 
         print(f"Loading {len(self.SUBS_LIST)} channels")
 
