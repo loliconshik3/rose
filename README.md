@@ -9,5 +9,3 @@ Rose parse your `subscribes.txt` file, then check mirrors from `mirror` file, ge
 ## Requirements
 
 * Mpv player.
-
-* Python module - pick.

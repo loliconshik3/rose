@@ -1,5 +1,4 @@
-from pick import pick
-import os
+import sys, os
 
 class Video:
 
@@ -15,6 +14,8 @@ class Video:
         self.length = length
 
         self.isNew = False
+
+        self.picker = None
 
     def toDict(self):
         video_dict = {
@@ -49,7 +50,9 @@ class Video:
         self.isWatched = self.str_to_bool(video_dict['isWatched'])
 
     def pick_watching_type(self):
-        option, index = pick(['Video and audio', 'Video only', 'Audio only'], 'Pick wathcing type: ', indicator="->")
+        self.picker.set_title('Pick watching type: ')
+        self.picker.set_items(['Video and audio', 'Video only', 'Audio only'])
+        option, index = self.picker.start()
         return option
 
     def play(self):

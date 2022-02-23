@@ -4,7 +4,7 @@ from src.channel import Channel
 from src.history import History
 from src.parser import Parser
 from src.video import Video
-from ui.picker import pick
+from ui.picker import pick, Picker
 import sys,os
 import json
 
@@ -43,10 +43,7 @@ class MainWindow:
             
             self.channels.append(channel)
 
-        if self.channels.get_list() == []:
-            self.load_channels()
-            result = False
-        else:
+        if self.channels.get_list() != []:
             self.parser.databaseChannels = self.channels.get_list().copy()
             result = True
 
@@ -78,6 +75,7 @@ class MainWindow:
         video = channel.videos[index-1]
 
         self.history.append(video.copy(), self.database)
+        video.picker = Picker()
         video.play()
         
         self.show_videos(channel, search_dict)
@@ -142,7 +140,7 @@ class MainWindow:
             self.show_videos(item, search_dict={'query': query, 'list': search_list})
         else:
             self.history.append(item, self.database)
-
+            item.picker = Picker()
             item.play()
 
             self.show_search_query(query, search_list)
@@ -185,6 +183,7 @@ class MainWindow:
 
         videos = self.history.reverse()
         video = videos[index-1]
+        video.picker = Picker()
         video.play()
 
         self.show_history()
@@ -198,10 +197,13 @@ class MainWindow:
         if option == '..':
             exit()
         elif option == 'Subscribes':
-            if self.channels.get_list() != []:
-                self.ask_database_reload()
+            if self.channels.get_list() == []:
+                if not self.load_channels_from_database():
+                    self.load_channels()
+                
+                self.show_channels()
             else:
-                self.load_channels_from_database()
+                self.ask_database_reload()
                 self.show_channels()
         elif option == 'Search':
             self.ask_search_query()

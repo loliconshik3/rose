@@ -12,7 +12,7 @@ KEYS_SELECT = (curses.KEY_RIGHT, ord(' '))
 
 class Picker:
 
-    def __init__(self, title='', items=[], indicator=''):
+    def __init__(self, title='', items=[], indicator='->'):
         self.title = title
         self.items = items
         self.indicator = indicator
@@ -144,7 +144,7 @@ class Picker:
         for line in lines_to_draw:
             line_name = str(line)
             max_line_length = middle_x - 2
-            
+
             if len(line_name) > max_line_length:
                 line_name = line_name[:max_line_length-3] + '...'
 
@@ -188,6 +188,15 @@ class Picker:
 
     def start(self):
         return curses.wrapper(self._start)
+
+    def set_title(self, title):
+        self.title = title
+    
+    def set_items(self, items):
+        self.items = items
+
+    def set_indicator(self, indicator):
+        self.indicator = indicator
 
 def pick(title='', items=[], indicator='->'):
     picker = Picker(title, items, indicator)
