@@ -39,8 +39,6 @@ class Database:
         self.history_cursor.execute("INSERT INTO history VALUES (?, ?)", video_list)
         self.history_base.commit()
 
-        print([video_list])
-
     def load_channels(self):
         return self.cursor.execute("SELECT * FROM channels")
 

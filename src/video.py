@@ -68,7 +68,7 @@ class Video:
         elif watching_type == "Audio only":
             mpv_command += "--vid=0"
 
-        print(f'Watching: {self.name} | {link[1:]}')
+        print(f'Watching: {self.name} | {link}')
         os.system(mpv_command + link)
 
     def copy(self):

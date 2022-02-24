@@ -8,7 +8,9 @@ from src.video import Video
 KEYS_ENTER = (curses.KEY_ENTER, ord('\n'), ord('\r'))
 KEYS_UP = (curses.KEY_UP, ord('k'))
 KEYS_DOWN = (curses.KEY_DOWN, ord('j'))
-KEYS_SELECT = (curses.KEY_RIGHT, ord(' '))
+KEYS_LEFT = (curses.KEY_RIGHT, ord('h'))
+KEYS_RIGHT = (curses.KEY_LEFT, ord('l'))
+KEYS_BACKSPACE = (curses.KEY_BACKSPACE, )
 
 class Picker:
 
@@ -19,6 +21,10 @@ class Picker:
 
         self.index = 0
         self.scroll_top = 0
+        
+        self.box_index = 0
+        self.box_count_in_line = 4
+        self.box_count_in_column = 4
 
     def move_up(self):
         self.index -= 1
@@ -79,52 +85,115 @@ class Picker:
             line = line[:limit-3] + '...'
         return line
 
-    def draw_channel(self, screen, item):
-        y = 1
+    def is_items_contain_string(self):
+        for item in self.items:
+            if type(item) == str:
+                return True
+
+        return False
+
+    def get_box_size(self, screen):
         max_y, max_x = screen.getmaxyx()
-        middle_y, middle_x = int(max_y/2), int(max_x/2)
+        return int(max_y / self.box_count_in_column), int(max_x / self.box_count_in_line)
 
-        name = self.crop_line_to_limit(item.name, middle_x-2)
-        watched_string = f' [{item.get_count_of_watched_videos()}/{len(item.videos)}]'
-        screen.addnstr(y, middle_x, name + watched_string, max_x-2)
-        y += 1
+    def get_line_index(self, index):
+        return int((index-1) / self.box_count_in_line)
 
-        subs_string = self.crop_line_to_limit(f'Subscribes: {item.subscribes}', middle_x-4)
-        screen.addnstr(y, middle_x+2, subs_string, max_x-2)
-        y += 1
+    def get_column_index(self, index):
+        ind_x = index
+        while ind_x > self.box_count_in_column:
+            ind_x -= self.box_count_in_column
+        return ind_x
 
-        shared_str = self.crop_line_to_limit(f'Last video: {item.get_last_video_date()}', middle_x-4)
-        screen.addnstr(y, middle_x+2, shared_str, max_x-2)
+    def get_box_start_location(self, screen, index):
+        y, x = 1, 1
+        max_y, max_x = screen.getmaxyx()
+        box_height, box_width = self.get_box_size(screen)
         
+        line_index = self.get_line_index(index)
+        y = y + (box_height * line_index)
 
-    def draw_video(self, screen, item):
-        y = 1
-        max_y, max_x = screen.getmaxyx()
-        middle_y, middle_x = int(max_y/2), int(max_x/2)
+        column_index = self.get_column_index(index)-1
+        x = x + (box_width * column_index) 
+        
+        if x <= 0: x = 1
+        if y <= 0: y = 1
 
-        name = self.crop_line_to_limit(item.name, middle_x-2)
-        screen.addnstr(y, middle_x, name, max_x-2)
-        y += 1
+        return y, x
 
-        author_str = self.crop_line_to_limit(f'Author: {item.author}', middle_x-4)
-        screen.addnstr(y, middle_x+2, author_str, max_x-2)
-        y += 1
+    def get_visible_box_list(self):
+        grid_size = self.box_count_in_column * self.box_count_in_line
+        grid_index = self.index
+        while grid_index > grid_size-1:
+            grid_index -= grid_size
 
-        shared_string = self.crop_line_to_limit(f'Shared: {item.shared}', middle_x-4)
-        screen.addnstr(y, middle_x+2, shared_string, max_x-2)
-        y += 1
+        min_index = self.index - grid_index
+        max_index = self.index + (grid_size - grid_index)
+        items_length = len(self.items)
+        
+        if max_index > items_length:
+            max_index -= max_index - items_length
 
-        views_string = self.crop_line_to_limit(f'Views: {item.views}', middle_x-4)
-        screen.addnstr(y, middle_x+2, views_string, max_x-2)
-        y += 1
+        return self.items[min_index : max_index], grid_index
 
-        length_str = self.crop_line_to_limit(f'Length: {item.length}', middle_x-4)
-        screen.addnstr(y, middle_x+2, length_str, max_x-2)
-    
+    def draw_channel(self, screen, item, grid_index):
+        box_height, box_width = self.get_box_size(screen)
+        start_y, start_x = self.get_box_start_location(screen, self.box_index)
+
+        box = curses.newwin(box_height, box_width, start_y, start_x)
+        
+        if self.box_index-1 == grid_index:
+            curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+            box.bkgd(curses.color_pair(1))
+
+        box.box()
+
+        name = self.crop_line_to_limit(item.name, box_width-2)
+        box.addstr(1, 1, name)
+
+        watched_string = f'Watched: {item.get_count_of_watched_videos()}/{len(item.videos)}'
+        box.addstr(2, 3, watched_string)
+
+        subs_string = self.crop_line_to_limit(f'Subscribes: {item.subscribes}', box_width-4)
+        box.addstr(3, 3, subs_string)
+
+        shared_str = self.crop_line_to_limit(f'Last video: {item.get_last_video_date()}', box_width-4)
+        box.addstr(4, 3, shared_str)
+        
+        box.refresh()
+
+    def draw_video(self, screen, item, grid_index):
+        box_height, box_width = self.get_box_size(screen)
+        start_y, start_x = self.get_box_start_location(screen, self.box_index)
+
+        box = curses.newwin(box_height, box_width, start_y, start_x)
+        
+        if self.box_index-1 == grid_index:
+            curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
+            box.bkgd(curses.color_pair(1))
+
+        box.box()
+
+        name = self.crop_line_to_limit(item.name, box_width-2)
+        box.addstr(1, 1, name)
+
+        author_str = self.crop_line_to_limit(f'Author: {item.author}', box_width-4)
+        box.addstr(2, 3, author_str)
+
+        shared_string = self.crop_line_to_limit(f'Shared: {item.shared}', box_width-4)
+        box.addstr(3, 3, shared_string)
+
+        views_string = self.crop_line_to_limit(f'Views: {item.views}', box_width-4)
+        box.addstr(4, 3, views_string)
+
+        length_str = self.crop_line_to_limit(f'Length: {item.length}', box_width-4)
+        box.addstr(5, 3, length_str)
+
+        box.refresh()
 
     def draw(self, screen):
         # clear screen
-        screen.clear()
+        screen.erase()
 
         y, x = 1, 1 # start point
         max_y, max_x = screen.getmaxyx()
@@ -141,25 +210,29 @@ class Picker:
 
         lines_to_draw = lines[self.scroll_top : self.scroll_top + max_rows]
 
-        for line in lines_to_draw:
-            line_name = str(line)
-            max_line_length = middle_x - 2
+        if self.is_items_contain_string():
+            for line in lines_to_draw:
+                line_name = str(line)
+                max_line_length = middle_x - 2
 
-            if len(line_name) > max_line_length:
-                line_name = line_name[:max_line_length-3] + '...'
+                if len(line_name) > max_line_length:
+                    line_name = line_name[:max_line_length-3] + '...'
 
-            screen.addnstr(y, x, line_name, max_line_length)
-            y += 1
-
-        # item description
-        y = 1
-        item = self.items[self.index]
-        if type(item) == Channel:
-            self.draw_channel(screen, item)
-        elif type(item) == Video:
-            self.draw_video(screen, item)
-
-        screen.refresh()
+                screen.addnstr(y, x, line_name, max_line_length)
+                y += 1
+        
+            screen.refresh()
+        else:
+            screen.addnstr(0, middle_x - int(len(self.title)/2), self.title, max_x-2)
+            screen.refresh()
+            items, grid_index = self.get_visible_box_list()
+            for item in items:
+                self.box_index += 1
+                if type(item) == Channel:
+                    self.draw_channel(screen, item, grid_index)
+                elif type(item) == Video:
+                    self.draw_video(screen, item, grid_index)
+            self.box_index = 0
 
     def run_loop(self, screen):
         while True:
@@ -173,6 +246,8 @@ class Picker:
                 self.move_down()
             elif c in KEYS_ENTER:
                 return self.get_selected()
+            elif c in KEYS_BACKSPACE:
+                return '..', -1
 
     def init_curses(self):
         # use the default colors of the terminal
@@ -184,6 +259,8 @@ class Picker:
 
     def _start(self, screen):
         self.init_curses()
+        screen.idlok(False)
+        screen.idcok(False)
         return self.run_loop(screen)
 
     def start(self):

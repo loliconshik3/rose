@@ -58,7 +58,7 @@ class MainWindow:
             if self.history.is_video_in_history(channel.videos[i]):
                 channel.videos[i].isWatched = True
 
-        options.insert(0, "..")
+        #options.insert(0, "..")
         channel.set_all_videos_old()
         
         channel_dict, videos_dict = channel.toDict()
@@ -66,13 +66,13 @@ class MainWindow:
         
         option, index = pick(title, options, indicator=self.indicator)
 
-        if index == 0 and option == "..":
+        if index == -1 and option == "..":
             if search_dict != {}:
                 self.show_search_query(search_dict['query'], search_dict['list'])
             else:
                 self.show_channels()
 
-        video = channel.videos[index-1]
+        video = channel.videos[index]
 
         self.history.append(video.copy(), self.database)
         video.picker = Picker()
@@ -105,13 +105,13 @@ class MainWindow:
                 #options[i] = '[!] ' + options[i]
 
 
-        options.insert(0, "..")
+        #options.insert(0, "..")
         option, index = pick(title, options, indicator=self.indicator)
         
-        if option == ".." and index == 0:
+        if option == ".." and index == -1:
             return self.show_menu()
 
-        channel = self.channels.get_list()[index-1]
+        channel = self.channels.get_list()[index]#-1]
 
         analog = channel.find_analog_in_list(self.parser.databaseChannels)
         if not analog == None:
@@ -129,13 +129,13 @@ class MainWindow:
                     item.isWatched = True
             options.append(item)
 
-        options.insert(0, "..")
+        #options.insert(0, "..")
         option, index = pick(title, options, indicator=self.indicator)
 
-        if option == '..' and index == 0:
+        if option == '..' and index == -1:
             return self.show_menu()
             
-        item = search_list[index-1]
+        item = search_list[index]
         if type(item) == Channel:
             self.show_videos(item, search_dict={'query': query, 'list': search_list})
         else:
@@ -175,14 +175,14 @@ class MainWindow:
 
         options = self.history.videos.copy()
         options.reverse()
-        options.insert(0, '..')
+        #options.insert(0, '..')
         option, index = pick(title, options, indicator=self.indicator)
 
-        if option == '..' and index == 0:
+        if option == '..' and index == -1:
             self.show_menu()
 
         videos = self.history.reverse()
-        video = videos[index-1]
+        video = videos[index]
         video.picker = Picker()
         video.play()
 
