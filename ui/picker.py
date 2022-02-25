@@ -175,7 +175,10 @@ class Picker:
         box.box()
 
         name = self.crop_line_to_limit(item.name, box_width-2)
+        
+        if not item.isWatched: box.attron(curses.A_BOLD)        
         box.addstr(1, 1, name)
+        if not item.isWatched: box.attroff(curses.A_BOLD)
 
         author_str = self.crop_line_to_limit(f'Author: {item.author}', box_width-4)
         box.addstr(2, 3, author_str)
