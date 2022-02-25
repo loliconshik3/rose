@@ -11,6 +11,8 @@ from os.path import exists
 import requests
 import json
 
+requests.packages.urllib3.util.connection.HAS_IPV6 = False
+
 class Parser:
 
     def __init__(self):

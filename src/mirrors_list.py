@@ -1,6 +1,8 @@
 from src.mirror import Mirror
 import requests
 
+requests.packages.urllib3.util.connection.HAS_IPV6 = False
+
 class MirrorsList:
 
     def __init__(self):
