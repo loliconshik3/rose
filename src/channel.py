@@ -7,6 +7,7 @@ class Channel:
         self.link = link
         self.videos = videos
         self.subscribes = subscribes
+        self.isHasNewVideos = False
 
     def get_video_names(self):
         names = []
@@ -42,6 +43,7 @@ class Channel:
         return self.videos[0].shared
 
     def set_all_videos_old(self):
+        self.isHasNewVideos = False
         for video in self.videos:
             video.isNew = False
 
@@ -73,6 +75,7 @@ class Channel:
 
         for video in self.videos: 
             if not video.nmLink in old_videos or video.isNew == True:
+                self.isHasNewVideos = True
                 video.isNew = True
                 result = True
 

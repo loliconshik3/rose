@@ -58,20 +58,20 @@ class MainWindow:
             if self.history.is_video_in_history(channel.videos[i]):
                 channel.videos[i].isWatched = True
 
-        #options.insert(0, "..")
-        channel.set_all_videos_old()
         
         channel_dict, videos_dict = channel.toDict()
         self.database.rewrite_channel_videos(channel_dict, videos_dict)
         
         option, index = pick(title, options, indicator=self.indicator)
 
+        
         if index == -1 and option == "..":
             if search_dict != {}:
                 self.show_search_query(search_dict['query'], search_dict['list'])
             else:
                 self.show_channels()
 
+        channel.set_all_videos_old()
         video = channel.videos[index]
 
         self.history.append(video.copy(), self.database)
@@ -102,10 +102,7 @@ class MainWindow:
             if hasNewVideos:
                 channel_dict, videos_dict = chan.toDict()
                 self.database.rewrite_channel_videos(channel_dict, videos_dict)
-                #options[i] = '[!] ' + options[i]
 
-
-        #options.insert(0, "..")
         option, index = pick(title, options, indicator=self.indicator)
         
         if option == ".." and index == -1:
@@ -175,7 +172,6 @@ class MainWindow:
 
         options = self.history.videos.copy()
         options.reverse()
-        #options.insert(0, '..')
         option, index = pick(title, options, indicator=self.indicator)
 
         if option == '..' and index == -1:
