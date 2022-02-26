@@ -61,12 +61,12 @@ class Video:
         watching_type = self.pick_watching_type()
 
         mpv_command = "mpv "
-        link = " https://youtube.com" + self.nmLink
+        link = self.link
 
         if watching_type == "Video only":
-            mpv_command += "--aid=0"
+            mpv_command += "--aid=0 "
         elif watching_type == "Audio only":
-            mpv_command += "--vid=0"
+            mpv_command += "--vid=0 "
 
         print(f'Watching: {self.name} | {link}')
         os.system(mpv_command + link)
