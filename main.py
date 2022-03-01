@@ -58,20 +58,19 @@ class MainWindow:
             if self.history.is_video_in_history(channel.videos[i]):
                 channel.videos[i].isWatched = True
 
-        
-        channel_dict, videos_dict = channel.toDict()
-        self.database.rewrite_channel_videos(channel_dict, videos_dict)
-        
         option, index = pick(title, options, indicator=self.indicator)
 
-        
+        channel.set_all_videos_old()
+
+        channel_dict, videos_dict = channel.toDict()
+        self.database.rewrite_channel_videos(channel_dict, videos_dict)
+
         if index == -1 and option == "..":
             if search_dict != {}:
                 self.show_search_query(search_dict['query'], search_dict['list'])
             else:
                 self.show_channels()
 
-        channel.set_all_videos_old()
         video = channel.videos[index]
 
         self.history.append(video.copy(), self.database)
@@ -99,16 +98,15 @@ class MainWindow:
 
             hasNewVideos = chan.has_new_videos(analog)
 
-            if hasNewVideos:
-                channel_dict, videos_dict = chan.toDict()
-                self.database.rewrite_channel_videos(channel_dict, videos_dict)
+            channel_dict, videos_dict = chan.toDict()
+            self.database.rewrite_channel_videos(channel_dict, videos_dict)
 
         option, index = pick(title, options, indicator=self.indicator)
         
         if option == ".." and index == -1:
             return self.show_menu()
 
-        channel = self.channels.get_list()[index]#-1]
+        channel = self.channels.get_list()[index]
 
         analog = channel.find_analog_in_list(self.parser.databaseChannels)
         if not analog == None:
@@ -126,7 +124,6 @@ class MainWindow:
                     item.isWatched = True
             options.append(item)
 
-        #options.insert(0, "..")
         option, index = pick(title, options, indicator=self.indicator)
 
         if option == '..' and index == -1:
@@ -210,6 +207,7 @@ def main():
     window = MainWindow()
 
     window.load_history_from_database()
+    window.load_channels_from_database()
     window.show_menu()
     
 if __name__ == "__main__":

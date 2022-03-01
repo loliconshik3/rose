@@ -176,5 +176,7 @@ class Parser:
 
         channels.sort_channels_by_link_list(self.SUBS_LIST)
 
+        self.parser.databaseChannels = channels
+
         print("Complete!")
 
