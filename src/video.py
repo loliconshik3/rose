@@ -53,12 +53,14 @@ class Video:
         self.picker.set_title('Pick watching type: ')
         self.picker.set_items(['Video and audio', 'Video only', 'Audio only'])
         option, index = self.picker.start()
-        return option
+        return option, index
 
     def play(self):
         self.isWatched = True
         
-        watching_type = self.pick_watching_type()
+        watching_type, index = self.pick_watching_type()
+        if watching_type == ".." and index == -1:
+            return
 
         mpv_command = "mpv "
         link = self.link
