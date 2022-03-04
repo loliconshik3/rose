@@ -40,7 +40,7 @@ class Channel:
             self.videos.append(video)
 
     def get_last_video_date(self):
-        return self.videos[0].shared
+        return self.videos[0].shared if len(self.videos) > 0 else None
 
     def set_all_videos_old(self):
         self.isHasNewVideos = False
