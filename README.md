@@ -1,5 +1,7 @@
 # Rose
 
+# Archived on github. Updates available on: ```https://notabug.org/loliconshik3/rose```
+
 Simple terminal-ui (TUI) youtube client.
 
 ## Feauters
